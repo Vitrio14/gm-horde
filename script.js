@@ -1,3 +1,9 @@
+// Stati delle cartelle attive nelle varie sezioni
+let currentQuestsFolder = null;
+let currentDocsFolder = null;
+let currentNotesFolder = null;
+let currentMediaFolder = null;
+
 function login() {
 
     const email = document.getElementById('email').value;
@@ -62,181 +68,263 @@ function showSection(id) {
     document.getElementById(id).classList.add('active');
 }
 
-/* QUEST */
+/* FUNZIONE GESTIONE CARTELLE */
 
-function openQuestModal() {
-
+function addFolder(type) {
     Swal.fire({
-
-        title: 'Nuova Quest',
-
+        title: 'Nuova Cartella',
         html: `
-
             <input
-                id="quest-title"
+                id="folder-name"
                 class="swal2-input"
-                placeholder="Titolo Quest"
+                placeholder="Nome Cartella"
             >
-
-            <textarea
-                id="quest-details"
-                class="swal2-textarea"
-                placeholder="Dettagli Quest"
-            ></textarea>
-
-            <input
-                id="quest-dynasty"
-                class="swal2-input"
-                placeholder="Dinastia interessata"
-            >
-
-            <input
-                id="quest-duration"
-                class="swal2-input"
-                placeholder="Durata"
-            >
-
-            <select
-                id="quest-status"
-                class="swal2-select"
-            >
-
-                <option value="todo">
-                    Da Fare
-                </option>
-
-                <option value="progress">
-                    In Corso
-                </option>
-
-                <option value="done">
-                    Completata
-                </option>
-
-            </select>
-
         `,
-
-        confirmButtonText: 'Crea Quest',
-
+        confirmButtonText: 'Crea Cartella',
         background: '#131a25',
-
         preConfirm: () => {
-
-            return {
-
-                title:
-                    document.getElementById(
-                        'quest-title'
-                    ).value,
-
-                details:
-                    document.getElementById(
-                        'quest-details'
-                    ).value,
-
-                dynasty:
-                    document.getElementById(
-                        'quest-dynasty'
-                    ).value,
-
-                duration:
-                    document.getElementById(
-                        'quest-duration'
-                    ).value,
-
-                status:
-                    document.getElementById(
-                        'quest-status'
-                    ).value
-            };
+            return document.getElementById('folder-name').value;
         }
-
     }).then((result) => {
-
-        if (result.isConfirmed) {
-
-            db.collection('quests').add({
-
-                title: result.value.title,
-                details: result.value.details,
-                dynasty: result.value.dynasty,
-                duration: result.value.duration,
-                status: result.value.status
-
+        if (result.isConfirmed && result.value) {
+            db.collection('folders').add({
+                name: result.value,
+                type: type
             }).then(() => {
-
-                showToast(
-                    'Quest creata'
-                );
-
-                loadQuests();
+                showToast('Cartella creata');
             });
         }
     });
 }
 
-function loadQuests() {
+/* QUEST */
 
-    const container =
-        document.getElementById('quest-list');
+function openQuestModal() {
+    if (!currentQuestsFolder) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attenzione',
+            text: 'Seleziona o crea prima una cartella per poter aggiungere una Quest!',
+            background: '#131a25'
+        });
+        return;
+    }
 
-    container.innerHTML = '';
-
-    db.collection('quests').get().then(snapshot => {
-
+    // Carica dinamicamente i giocatori esistenti dal database per il selettore
+    db.collection('players').get().then(snapshot => {
+        let playerOptions = '<option value="">Nessun Player</option>';
         snapshot.forEach(doc => {
+            const p = doc.data();
+            playerOptions += `<option value="${p.name}">${p.name}</option>`;
+        });
 
-            const q = doc.data();
+        Swal.fire({
 
-            container.innerHTML += `
+            title: 'Nuova Quest',
 
-                <div class="card">
+            html: `
 
-                    <h3>${q.title}</h3>
+                <input
+                    id="quest-title"
+                    class="swal2-input"
+                    placeholder="Titolo Quest"
+                >
 
-                    <p>${q.details}</p>
+                <textarea
+                    id="quest-details"
+                    class="swal2-textarea"
+                    placeholder="Dettagli Quest (Scrivi i vari step premendo Invio per andare a capo)"
+                ></textarea>
 
-                    <p>
-                        <b>Dinastia:</b>
-                        ${q.dynasty}
-                    </p>
+                <input
+                    id="quest-dynasty"
+                    class="swal2-input"
+                    placeholder="Dinastia interessata"
+                >
 
-                    <p>
-                        <b>Durata:</b>
-                        ${q.duration}
-                    </p>
+                <select
+                    id="quest-player"
+                    class="swal2-select"
+                >
+                    ${playerOptions}
+                </select>
 
-                    <div class="status ${q.status}">
-                        ${q.status}
-                    </div>
+                <select
+                    id="quest-status"
+                    class="swal2-select"
+                >
 
-                    <div class="action-buttons">
+                    <option value="todo">
+                        Da Fare
+                    </option>
 
-                        <button
-                            class="delete-btn"
-                            onclick="
-                                confirmDelete(
-                                    'quests',
-                                    '${doc.id}',
-                                    loadQuests
-                                )
-                            "
-                        >
+                    <option value="progress">
+                        In Corso
+                    </option>
 
-                            Elimina
+                    <option value="done">
+                        Completata
+                    </option>
 
-                        </button>
+                </select>
 
-                    </div>
+            `,
 
-                </div>
+            confirmButtonText: 'Crea Quest',
 
-            `;
+            background: '#131a25',
+
+            preConfirm: () => {
+
+                return {
+
+                    title:
+                        document.getElementById(
+                            'quest-title'
+                        ).value,
+
+                    details:
+                        document.getElementById(
+                            'quest-details'
+                        ).value,
+
+                    dynasty:
+                        document.getElementById(
+                            'quest-dynasty'
+                        ).value,
+
+                    player:
+                        document.getElementById(
+                            'quest-player'
+                        ).value,
+
+                    status:
+                        document.getElementById(
+                            'quest-status'
+                        ).value
+                };
+            }
+
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                db.collection('quests').add({
+
+                    title: result.value.title,
+                    details: result.value.details,
+                    dynasty: result.value.dynasty,
+                    player: result.value.player,
+                    status: result.value.status,
+                    folderId: currentQuestsFolder.id
+
+                }).then(() => {
+
+                    showToast(
+                        'Quest creata'
+                    );
+                });
+            }
         });
     });
 }
+
+function loadQuests() {
+    const container = document.getElementById('quest-list');
+
+    // Ascolto real-time sia delle cartelle che delle quest
+    db.collection('folders').where('type', '==', 'quests').onSnapshot(foldersSnapshot => {
+        db.collection('quests').onSnapshot(questsSnapshot => {
+            container.innerHTML = '';
+
+            if (currentQuestsFolder) {
+                // Vista interna alla cartella: Mostra bottone per tornare indietro
+                container.innerHTML += `
+                    <div class="card folder-card back-card" onclick="currentQuestsFolder = null; loadQuests();" style="border-color: #ef4444; cursor: pointer;">
+                        <h3><i class="fa-solid fa-arrow-left"></i> Torna alle Cartelle</h3>
+                        <p style="margin-top: 8px;">Cartella attiva: <b>${currentQuestsFolder.name}</b></p>
+                    </div>
+                `;
+
+                questsSnapshot.forEach(doc => {
+                    const q = doc.data();
+                    if (q.folderId === currentQuestsFolder.id) {
+                        // Converte i dettagli separati da invio in comodi step strutturati
+                        let stepsHTML = '';
+                        if (q.details) {
+                            const steps = q.details.split('\n').filter(s => s.trim() !== '');
+                            stepsHTML = steps.map((step, index) => `<li><b>Step ${index + 1}:</b> ${step}</li>`).join('');
+                        } else {
+                            stepsHTML = '<li>Nessun dettaglio inserito</li>';
+                        }
+
+                        container.innerHTML += `
+                            <div class="card">
+                                <h3>${q.title}</h3>
+                                
+                                <div class="quest-steps-box">
+                                    <ul style="list-style: none; padding: 0;">
+                                        ${stepsHTML}
+                                    </ul>
+                                </div>
+
+                                <p style="margin-top: 10px;">
+                                    <b>Dinastia:</b> ${q.dynasty || 'Nessuna'}
+                                </p>
+
+                                <p>
+                                    <b>Player Assegnato:</b> ${q.player || 'Nessuno'}
+                                </p>
+
+                                <div class="status ${q.status}">
+                                    ${q.status}
+                                </div>
+
+                                <div class="action-buttons">
+                                    <button
+                                        class="delete-btn"
+                                        onclick="confirmDelete('quests', '${doc.id}', loadQuests)"
+                                    >
+                                        Elimina
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                // Vista principale: mostra l'elenco delle cartelle disponibili
+                foldersSnapshot.forEach(fDoc => {
+                    const f = fDoc.data();
+                    container.innerHTML += `
+                        <div class="card folder-card" style="border-color: #f59e0b; cursor: pointer;" onclick="currentQuestsFolder = {id: '${fDoc.id}', name: '${f.name}'}; loadQuests();">
+                            <h3><i class="fa-solid fa-folder" style="color: #f59e0b; margin-right: 8px;"></i> ${f.name}</h3>
+                            <p>Apri per visualizzare le quest</p>
+                            <div class="action-buttons" onclick="event.stopPropagation();" style="margin-top: 15px;">
+                                <button class="delete-btn" style="padding: 6px; font-size: 13px;" onclick="confirmDelete('folders', '${fDoc.id}', loadQuests)">
+                                    Elimina Cartella
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        });
+    });
+}
+
+/* DOCUMENTI */
+
 function addDoc() {
+    if (!currentDocsFolder) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attenzione',
+            text: 'Seleziona o crea prima una cartella per poter aggiungere un documento!',
+            background: '#131a25'
+        });
+        return;
+    }
 
     Swal.fire({
 
@@ -283,64 +371,72 @@ function addDoc() {
             db.collection('docs').add({
 
                 title: result.value.title,
-                link: result.value.link
+                link: result.value.link,
+                folderId: currentDocsFolder.id
 
             }).then(() => {
 
                 showToast(
                     'Documento aggiunto'
                 );
-
-                loadDocs();
             });
         }
     });
 }
 
 function loadDocs() {
+    const container = document.getElementById('docs-list');
 
-    const container =
-        document.getElementById('docs-list');
+    db.collection('folders').where('type', '==', 'docs').onSnapshot(foldersSnapshot => {
+        db.collection('docs').onSnapshot(docsSnapshot => {
+            container.innerHTML = '';
 
-    container.innerHTML = '';
+            if (currentDocsFolder) {
+                container.innerHTML += `
+                    <div class="card folder-card back-card" onclick="currentDocsFolder = null; loadDocs();" style="border-color: #ef4444; cursor: pointer;">
+                        <h3><i class="fa-solid fa-arrow-left"></i> Torna alle Cartelle</h3>
+                        <p style="margin-top: 8px;">Cartella attiva: <b>${currentDocsFolder.name}</b></p>
+                    </div>
+                `;
 
-    db.collection('docs').get().then(snapshot => {
-
-        snapshot.forEach(doc => {
-
-            const d = doc.data();
-
-            container.innerHTML += `
-
-                <div class="card">
-
-                    <h3>${d.title}</h3>
-
-                    <button 
-                        class="open-doc-btn"
-                        onclick="openGoogleDoc('${d.link}')"
-                    >
-
-                        <i class="fa-solid fa-file"></i>
-
-                        Apri Documento
-
-                    </button>
-
-                    <button 
-                        class="delete-btn"
-                        onclick="deleteDoc('${doc.id}')"
-                    >
-
-                        <i class="fa-solid fa-trash"></i>
-
-                        Elimina
-
-                    </button>
-
-                </div>
-
-            `;
+                docsSnapshot.forEach(doc => {
+                    const d = doc.data();
+                    if (d.folderId === currentDocsFolder.id) {
+                        container.innerHTML += `
+                            <div class="card">
+                                <h3>${d.title}</h3>
+                                <button 
+                                    class="open-doc-btn"
+                                    onclick="openGoogleDoc('${d.link}')"
+                                >
+                                    <i class="fa-solid fa-file"></i> Apri Documento
+                                </button>
+                                <button 
+                                    class="delete-btn"
+                                    onclick="deleteDoc('${doc.id}')"
+                                >
+                                    <i class="fa-solid fa-trash"></i> Elimina
+                                </button>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                foldersSnapshot.forEach(fDoc => {
+                    const f = fDoc.data();
+                    container.innerHTML += `
+                        <div class="card folder-card" style="border-color: #f59e0b; cursor: pointer;" onclick="currentDocsFolder = {id: '${fDoc.id}', name: '${f.name}'}; loadDocs();">
+                            <h3><i class="fa-solid fa-folder" style="color: #f59e0b; margin-right: 8px;"></i> ${f.name}</h3>
+                            <p>Apri per visualizzare i documenti</p>
+                            <div class="action-buttons" onclick="event.stopPropagation();" style="margin-top: 15px;">
+                                <button class="delete-btn" style="padding: 6px; font-size: 13px;" onclick="confirmDelete('folders', '${fDoc.id}', loadDocs)">
+                                    Elimina Cartella
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
         });
     });
 }
@@ -348,6 +444,15 @@ function loadDocs() {
 /* NOTES */
 
 function addNote() {
+    if (!currentNotesFolder) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attenzione',
+            text: 'Seleziona o crea prima una cartella per poter aggiungere una nota!',
+            background: '#131a25'
+        });
+        return;
+    }
 
     Swal.fire({
 
@@ -384,61 +489,68 @@ function addNote() {
 
             db.collection('notes').add({
 
-                note: result.value.note
+                note: result.value.note,
+                folderId: currentNotesFolder.id
 
             }).then(() => {
 
                 showToast(
                     'Nota aggiunta'
                 );
-
-                loadNotes();
             });
         }
     });
 }
 
 function loadNotes() {
+    const container = document.getElementById('notes-list');
 
-    const container =
-        document.getElementById('notes-list');
+    db.collection('folders').where('type', '==', 'notes').onSnapshot(foldersSnapshot => {
+        db.collection('notes').onSnapshot(notesSnapshot => {
+            container.innerHTML = '';
 
-    container.innerHTML = '';
-
-    db.collection('notes').get().then(snapshot => {
-
-        snapshot.forEach(doc => {
-
-            const n = doc.data();
-
-            container.innerHTML += `
-
-                <div class="card">
-
-                    <p>${n.note}</p>
-
-                    <div class="action-buttons">
-
-                        <button
-                            class="delete-btn"
-                            onclick="
-                                confirmDelete(
-                                    'notes',
-                                    '${doc.id}',
-                                    loadNotes
-                                )
-                            "
-                        >
-
-                            Elimina
-
-                        </button>
-
+            if (currentNotesFolder) {
+                container.innerHTML += `
+                    <div class="card folder-card back-card" onclick="currentNotesFolder = null; loadNotes();" style="border-color: #ef4444; cursor: pointer;">
+                        <h3><i class="fa-solid fa-arrow-left"></i> Torna alle Cartelle</h3>
+                        <p style="margin-top: 8px;">Cartella attiva: <b>${currentNotesFolder.name}</b></p>
                     </div>
+                `;
 
-                </div>
-
-            `;
+                notesSnapshot.forEach(doc => {
+                    const n = doc.data();
+                    if (n.folderId === currentNotesFolder.id) {
+                        container.innerHTML += `
+                            <div class="card">
+                                <p>${n.note}</p>
+                                <div class="action-buttons">
+                                    <button
+                                        class="delete-btn"
+                                        onclick="confirmDelete('notes', '${doc.id}', loadNotes)"
+                                    >
+                                        Elimina
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                foldersSnapshot.forEach(fDoc => {
+                    const f = fDoc.data();
+                    container.innerHTML += `
+                        <div class="card folder-card" style="border-color: #f59e0b; cursor: pointer;" onclick="currentNotesFolder = {id: '${fDoc.id}', name: '${f.name}'}; loadNotes();">
+                            <h3><i class="fa-solid fa-folder" style="color: #f59e0b; margin-right: 8px;"></i> ${f.name}</h3>
+                            <p>Apri per visualizzare le note</p>
+                            <div class="action-buttons" onclick="event.stopPropagation();" style="margin-top: 15px;">
+                                <button class="delete-btn" style="padding: 6px; font-size: 13px;" onclick="confirmDelete('folders', '${fDoc.id}', loadNotes)">
+                                    Elimina Cartella
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
         });
     });
 }
@@ -446,6 +558,15 @@ function loadNotes() {
 /* MEDIA */
 
 function addMedia() {
+    if (!currentMediaFolder) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attenzione',
+            text: 'Seleziona o crea prima una cartella per poter aggiungere contenuti all\'archivio!',
+            background: '#131a25'
+        });
+        return;
+    }
 
     Swal.fire({
 
@@ -494,87 +615,90 @@ function addMedia() {
             db.collection('media').add({
 
                 title: result.value.title,
-                content: result.value.content
+                content: result.value.content,
+                folderId: currentMediaFolder.id
 
             }).then(() => {
 
                 showToast(
                     'Contenuto aggiunto'
                 );
-
-                loadMedia();
             });
         }
     });
 }
 
 function loadMedia() {
+    const container = document.getElementById('media-list');
 
-    const container =
-        document.getElementById('media-list');
+    db.collection('folders').where('type', '==', 'media').onSnapshot(foldersSnapshot => {
+        db.collection('media').onSnapshot(mediaSnapshot => {
+            container.innerHTML = '';
 
-    container.innerHTML = '';
-
-    db.collection('media').get().then(snapshot => {
-
-        snapshot.forEach(doc => {
-
-            const m = doc.data();
-
-            let mediaHTML = '';
-
-            if (
-                m.content.includes('.png') ||
-                m.content.includes('.jpg') ||
-                m.content.includes('.jpeg') ||
-                m.content.includes('.gif') ||
-                m.content.includes('https://')
-            ) {
-
-                mediaHTML = `
-                    <img
-                        src="${m.content}"
-                        class="media-image"
-                    >
-                `;
-
-            } else {
-
-                mediaHTML = `
-                    <p>${m.content}</p>
-                `;
-            }
-
-            container.innerHTML += `
-
-                <div class="card">
-
-                    <h3>${m.title}</h3>
-
-                    ${mediaHTML}
-
-                    <div class="action-buttons">
-
-                        <button
-                            class="delete-btn"
-                            onclick="
-                                confirmDelete(
-                                    'media',
-                                    '${doc.id}',
-                                    loadMedia
-                                )
-                            "
-                        >
-
-                            Elimina
-
-                        </button>
-
+            if (currentMediaFolder) {
+                container.innerHTML += `
+                    <div class="card folder-card back-card" onclick="currentMediaFolder = null; loadMedia();" style="border-color: #ef4444; cursor: pointer;">
+                        <h3><i class="fa-solid fa-arrow-left"></i> Torna alle Cartelle</h3>
+                        <p style="margin-top: 8px;">Cartella attiva: <b>${currentMediaFolder.name}</b></p>
                     </div>
+                `;
 
-                </div>
+                mediaSnapshot.forEach(doc => {
+                    const m = doc.data();
+                    if (m.folderId === currentMediaFolder.id) {
+                        let mediaHTML = '';
 
-            `;
+                        if (
+                            m.content.includes('.png') ||
+                            m.content.includes('.jpg') ||
+                            m.content.includes('.jpeg') ||
+                            m.content.includes('.gif') ||
+                            m.content.includes('https://')
+                        ) {
+                            mediaHTML = `
+                                <img
+                                    src="${m.content}"
+                                    class="media-image"
+                                >
+                            `;
+                        } else {
+                            mediaHTML = `
+                                <p>${m.content}</p>
+                            `;
+                        }
+
+                        container.innerHTML += `
+                            <div class="card">
+                                <h3>${m.title}</h3>
+                                ${mediaHTML}
+                                <div class="action-buttons">
+                                    <button
+                                        class="delete-btn"
+                                        onclick="confirmDelete('media', '${doc.id}', loadMedia)"
+                                    >
+                                        Elimina
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                foldersSnapshot.forEach(fDoc => {
+                    const f = fDoc.data();
+                    container.innerHTML += `
+                        <div class="card folder-card" style="border-color: #f59e0b; cursor: pointer;" onclick="currentMediaFolder = {id: '${fDoc.id}', name: '${f.name}'}; loadMedia();">
+                            <h3><i class="fa-solid fa-folder" style="color: #f59e0b; margin-right: 8px;"></i> ${f.name}</h3>
+                            <p>Apri per visualizzare l'archivio</p>
+                            <div class="action-buttons" onclick="event.stopPropagation();" style="margin-top: 15px;">
+                                <button class="delete-btn" style="padding: 6px; font-size: 13px;" onclick="confirmDelete('folders', '${fDoc.id}', loadMedia)">
+                                    Elimina Cartella
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
         });
     });
 }
@@ -652,55 +776,31 @@ function addCommand() {
                 showToast(
                     'Comando aggiunto'
                 );
-
-                loadCommands();
             });
         }
     });
 }
 
 function loadCommands() {
+    const container = document.getElementById('commands-list');
 
-    const container =
-        document.getElementById('commands-list');
-
-    container.innerHTML = '';
-
-    db.collection('commands').get().then(snapshot => {
-
+    db.collection('commands').onSnapshot(snapshot => {
+        container.innerHTML = '';
         snapshot.forEach(doc => {
-
             const c = doc.data();
-
             container.innerHTML += `
-
                 <div class="card">
-
                     <h3>${c.command}</h3>
-
                     <p>${c.description}</p>
-
                     <div class="action-buttons">
-
                         <button
                             class="delete-btn"
-                            onclick="
-                                confirmDelete(
-                                    'commands',
-                                    '${doc.id}',
-                                    loadCommands
-                                )
-                            "
+                            onclick="confirmDelete('commands', '${doc.id}', loadCommands)"
                         >
-
                             Elimina
-
                         </button>
-
                     </div>
-
                 </div>
-
             `;
         });
     });
@@ -764,63 +864,37 @@ function saveGlobalLink() {
                 showToast(
                     'Link salvato'
                 );
-
-                loadGlobalLinks();
             });
         }
     });
 }
 
 function loadGlobalLinks() {
+    const container = document.getElementById('global-links');
 
-    const container =
-        document.getElementById('global-links');
-
-    container.innerHTML = '';
-
-    db.collection('globalLinks').get().then(snapshot => {
-
+    db.collection('globalLinks').onSnapshot(snapshot => {
+        container.innerHTML = '';
         snapshot.forEach(doc => {
-
             const l = doc.data();
-
             container.innerHTML += `
-
                 <div class="card">
-
                     <h3>${l.title}</h3>
-
                     <a
                         href="${l.link}"
                         target="_blank"
                         class="link-btn"
                     >
-
                         APRI LINK
-
                     </a>
-
                     <div class="action-buttons">
-
                         <button
                             class="delete-btn"
-                            onclick="
-                                confirmDelete(
-                                    'globalLinks',
-                                    '${doc.id}',
-                                    loadGlobalLinks
-                                )
-                            "
+                            onclick="confirmDelete('globalLinks', '${doc.id}', loadGlobalLinks)"
                         >
-
                             Elimina
-
                         </button>
-
                     </div>
-
                 </div>
-
             `;
         });
     });
@@ -885,32 +959,9 @@ function deleteDoc(id) {
                     showToast(
                         'Documento eliminato'
                     );
-
-                    loadDocs();
                 });
         }
     });
-}
-
-function showToast(text) {
-
-    Toastify({
-
-        text: text,
-
-        duration: 3000,
-
-        gravity: 'top',
-
-        position: 'right',
-
-        style: {
-            background:
-                'linear-gradient(to right, #ef4444, #b91c1c)',
-            borderRadius: '12px'
-        }
-
-    }).showToast();
 }
 
 function confirmDelete(collection, id, reloadFunction) {
@@ -943,8 +994,6 @@ function confirmDelete(collection, id, reloadFunction) {
                 .then(() => {
 
                     showToast('Elemento eliminato');
-
-                    reloadFunction();
                 });
         }
     });
@@ -1030,66 +1079,49 @@ function addPlayer() {
             }).then(() => {
 
                 showToast('Player creato');
-
-                loadPlayers();
             });
         }
     });
 }
 
 function loadPlayers() {
+    const container = document.getElementById('players-list');
 
-    const container =
-        document.getElementById('players-list');
-
-    container.innerHTML = '';
-
-    db.collection('players').get().then(snapshot => {
-
+    db.collection('players').onSnapshot(snapshot => {
+        container.innerHTML = '';
         snapshot.forEach(doc => {
-
             const p = doc.data();
 
+            // Mostra in modo chiaro le quest attive assegnate al player
+            let activeQuestsHTML = '';
+            if (p.quests && p.quests.length > 0) {
+                activeQuestsHTML = p.quests.map(q => `<span class="status progress" style="margin: 2px;">${q}</span>`).join(' ');
+            } else {
+                activeQuestsHTML = '<span style="color: var(--muted); font-size:13px;">Nessuna quest attiva</span>';
+            }
+
             container.innerHTML += `
-
                 <div class="card">
-
                     <h3>${p.name}</h3>
-
-                    <p>
-                        ${p.notes || 'Nessuna nota'}
-                    </p>
-
+                    <p>${p.notes || 'Nessuna nota'}</p>
+                    <div style="margin-top:10px;">
+                        <b>Quest Attive:</b><br>${activeQuestsHTML}
+                    </div>
                     <div class="action-buttons">
-
                         <button
                             class="edit-btn"
-                            onclick="
-                                openPlayerModal(
-                                    '${doc.id}'
-                                )
-                            "
+                            onclick="openPlayerModal('${doc.id}')"
                         >
                             Apri
                         </button>
-
                         <button
                             class="delete-btn"
-                            onclick="
-                                confirmDelete(
-                                    'players',
-                                    '${doc.id}',
-                                    loadPlayers
-                                )
-                            "
+                            onclick="confirmDelete('players', '${doc.id}', loadPlayers)"
                         >
                             Elimina
                         </button>
-
                     </div>
-
                 </div>
-
             `;
         });
     });
@@ -1104,6 +1136,7 @@ function openPlayerModal(playerId) {
 
             const player = playerDoc.data();
 
+            // Recupera dinamicamente le quest correnti dal database delle quest
             db.collection('quests').get().then(snapshot => {
 
                 let questOptions = '';
@@ -1142,6 +1175,7 @@ function openPlayerModal(playerId) {
                             placeholder="Note"
                         >${player.notes || ''}</textarea>
 
+                        <label style="display:block; text-align:left; margin: 10px 0 5px 12px; color: var(--muted); font-size:14px; font-weight:600;">Seleziona Quest Attive dal Database:</label>
                         <select
                             id="player-quests"
                             class="swal2-select"
@@ -1199,8 +1233,6 @@ function openPlayerModal(playerId) {
                                 showToast(
                                     'Player aggiornato'
                                 );
-
-                                loadPlayers();
                             });
                     }
                 });
@@ -1227,6 +1259,7 @@ auth.onAuthStateChanged(user => {
         loadMedia();
         loadCommands();
         loadGlobalLinks();
+        loadPlayers();
 
     } else {
 

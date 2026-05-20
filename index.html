@@ -7,27 +7,24 @@
 
     <title>Pannello GM - Horde RP</title>
 
-    <!-- FAVICON -->
     <link rel="icon" type="image/x-icon" href="logo.ico">
 
-    <!-- STYLE -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body>
@@ -73,109 +70,109 @@
 
         <section id="quests" class="panel active">
 
-    <div class="topbar">
-        <h1>Gestione Quest</h1>
+            <div class="topbar">
+                <h1>Gestione Quest</h1>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="addFolder('quests')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">+ Nuova Cartella</button>
+                    <button onclick="openQuestModal()">+ Nuova Quest</button>
+                </div>
+            </div>
 
-        <button onclick="openQuestModal()">
-            + Nuova Quest
-        </button>
-    </div>
+            <div id="quest-list" class="grid"></div>
 
-    <div id="quest-list" class="grid"></div>
+        </section>
 
-</section>
+        <section id="players" class="panel">
 
-<section id="players" class="panel">
+            <div class="topbar">
 
-    <div class="topbar">
+                <h1>Players</h1>
 
-        <h1>Players</h1>
+                <button onclick="addPlayer()">
+                    + Nuovo Player
+                </button>
 
-        <button onclick="addPlayer()">
-            + Nuovo Player
-        </button>
+            </div>
 
-    </div>
+            <div id="players-list" class="grid"></div>
 
-    <div id="players-list" class="grid"></div>
+        </section>
 
-</section>
+        <section id="docs" class="panel">
 
-<section id="docs" class="panel">
+            <div class="topbar">
+                <h1>Documenti</h1>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="addFolder('docs')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">+ Nuova Cartella</button>
+                    <button onclick="addDoc()">+ Aggiungi</button>
+                </div>
+            </div>
 
-    <div class="topbar">
-        <h1>Documenti</h1>
+            <div id="docs-list" class="grid"></div>
 
-        <button onclick="addDoc()">
-            + Aggiungi
-        </button>
-    </div>
+        </section>
 
-    <div id="docs-list" class="grid"></div>
+        <section id="notes" class="panel">
 
-</section>
+            <div class="topbar">
+                <h1>Note</h1>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="addFolder('notes')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">+ Nuova Cartella</button>
+                    <button onclick="addNote()">+ Nuova Nota</button>
+                </div>
+            </div>
 
-<section id="notes" class="panel">
+            <div id="notes-list" class="grid"></div>
 
-    <div class="topbar">
-        <h1>Note</h1>
+        </section>
 
-        <button onclick="addNote()">
-            + Nuova Nota
-        </button>
-    </div>
+        <section id="media" class="panel">
 
-    <div id="notes-list" class="grid"></div>
+            <div class="topbar">
+                <h1>Archivio Utilità</h1>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="addFolder('media')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">+ Nuova Cartella</button>
+                    <button onclick="addMedia()">+ Aggiungi</button>
+                </div>
+            </div>
 
-</section>
+            <div id="media-list" class="grid"></div>
 
-<section id="media" class="panel">
+        </section>
 
-    <div class="topbar">
-        <h1>Archivio Utilità</h1>
+        <section id="commands" class="panel">
 
-        <button onclick="addMedia()">
-            + Aggiungi
-        </button>
-    </div>
+            <div class="topbar">
+                <h1>Comandi RP</h1>
 
-    <div id="media-list" class="grid"></div>
+                <button onclick="addCommand()">
+                    + Aggiungi
+                </button>
+            </div>
 
-</section>
+            <div id="commands-list" class="grid"></div>
 
-<section id="commands" class="panel">
+        </section>
 
-    <div class="topbar">
-        <h1>Comandi RP</h1>
+        <section id="admin" class="panel">
 
-        <button onclick="addCommand()">
-            + Aggiungi
-        </button>
-    </div>
+            <div class="topbar">
+                <h1>Admin Panel</h1>
+            </div>
 
-    <div id="commands-list" class="grid"></div>
+            <div class="admin-box">
 
-</section>
+                <button onclick="saveGlobalLink()">
+                    + Nuovo Link
+                </button>
 
-<section id="admin" class="panel">
+            </div>
 
-    <div class="topbar">
-        <h1>Admin Panel</h1>
-    </div>
+            <div id="global-links" class="grid"></div>
 
-<div class="admin-box">
+        </section>
 
-    <button onclick="saveGlobalLink()">
-        + Nuovo Link
-    </button>
-
-</div>
-
-    <div id="global-links" class="grid"></div>
-
-</section>
-
-</main>
+    </main>
 
 </div>
 
