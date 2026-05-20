@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pannello GM - Horde RP</title>
+
+    <!-- FAVICON -->
+    <link rel="icon" type="image/x-icon" href="logo.ico">
+
+    <!-- STYLE -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+
+<body>
+
+<div class="banner-overlay"></div>
+
+<div id="login-page">
+    <div class="login-box">
+
+        <img src="logo.png" class="main-logo">
+
+        <h1>PANNELLO GM HORDE RP</h1>
+
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+
+        <button onclick="login()">ACCEDI</button>
+
+    </div>
+</div>
+
+<div id="dashboard" class="hidden">
+
+    <aside class="sidebar">
+
+        <h2>PANNELLO GM</h2>
+
+        <button onclick="showSection('quests')">Quest</button>
+        <button onclick="showSection('players')">Giocatori</button>
+        <button onclick="showSection('docs')">Documenti</button>
+        <button onclick="showSection('notes')">Note</button>
+        <button onclick="showSection('media')">Archivio</button>
+        <button onclick="showSection('commands')">Comandi RP</button>
+        <button onclick="showSection('admin')">Admin</button>
+
+        <button class="logout" onclick="logout()">
+            Esci
+        </button>
+
+    </aside>
+
+    <main>
+
+        <section id="quests" class="panel active">
+
+    <div class="topbar">
+        <h1>Gestione Quest</h1>
+
+        <button onclick="openQuestModal()">
+            + Nuova Quest
+        </button>
+    </div>
+
+    <div id="quest-list" class="grid"></div>
+
+</section>
+
+<section id="players" class="panel">
+
+    <div class="topbar">
+
+        <h1>Players</h1>
+
+        <button onclick="addPlayer()">
+            + Nuovo Player
+        </button>
+
+    </div>
+
+    <div id="players-list" class="grid"></div>
+
+</section>
+
+<section id="docs" class="panel">
+
+    <div class="topbar">
+        <h1>Documenti</h1>
+
+        <button onclick="addDoc()">
+            + Aggiungi
+        </button>
+    </div>
+
+    <div id="docs-list" class="grid"></div>
+
+</section>
+
+<section id="notes" class="panel">
+
+    <div class="topbar">
+        <h1>Note</h1>
+
+        <button onclick="addNote()">
+            + Nuova Nota
+        </button>
+    </div>
+
+    <div id="notes-list" class="grid"></div>
+
+</section>
+
+<section id="media" class="panel">
+
+    <div class="topbar">
+        <h1>Archivio Utilità</h1>
+
+        <button onclick="addMedia()">
+            + Aggiungi
+        </button>
+    </div>
+
+    <div id="media-list" class="grid"></div>
+
+</section>
+
+<section id="commands" class="panel">
+
+    <div class="topbar">
+        <h1>Comandi RP</h1>
+
+        <button onclick="addCommand()">
+            + Aggiungi
+        </button>
+    </div>
+
+    <div id="commands-list" class="grid"></div>
+
+</section>
+
+<section id="admin" class="panel">
+
+    <div class="topbar">
+        <h1>Admin Panel</h1>
+    </div>
+
+<div class="admin-box">
+
+    <button onclick="saveGlobalLink()">
+        + Nuovo Link
+    </button>
+
+</div>
+
+    <div id="global-links" class="grid"></div>
+
+</section>
+
+</main>
+
+</div>
+
+<footer>
+    © Vitrio — Tutti i diritti riservati - Gestione a solo scopo ludico, non commerciale. Non è consentita la riproduzione totale o parziale dei contenuti senza autorizzazione.
+</footer>
+
+<script src="firebase-config.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
