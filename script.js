@@ -9,7 +9,7 @@ function login() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    if (email !== 'gm@horde.it') {
+    if (email !== 'gm.vampiri@horde.it') {
 
         alert('Accesso non autorizzato');
 
@@ -22,7 +22,7 @@ function login() {
 
             const user = userCredential.user;
 
-            if (user.email !== 'gm@horde.it') {
+            if (user.email !== 'gm.vampiri@horde.it') {
 
                 auth.signOut();
 
@@ -1245,7 +1245,7 @@ function openPlayerModal(playerId) {
 
 auth.onAuthStateChanged(user => {
 
-    if (user && user.email === 'gm@horde.it') {
+    if (user && user.email === 'gm.vampiri@horde.it') {
 
         document.getElementById('login-page')
             .classList.add('hidden');
