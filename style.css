@@ -59,19 +59,20 @@ html, body {
     background: var(--dark-void); 
 }
 
+
 body {
     background-color: var(--dark-void);
     color: var(--text-light);
     font-family: 'Quicksand', sans-serif;
     background-image: 
-        repeating-linear-gradient(45deg, rgba(197, 160, 89, 0.015) 0px, rgba(197, 160, 89, 0.015) 1px, transparent 1px, transparent 30px),
-        repeating-linear-gradient(-45deg, rgba(139, 0, 0, 0.015) 0px, rgba(139, 0, 0, 0.015) 1px, transparent 1px, transparent 30px),
-        radial-gradient(circle at 10% 20%, rgba(139, 0, 0, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(197, 160, 89, 0.08) 0%, transparent 40%),
-        linear-gradient(rgba(7, 7, 7, 0.9), rgba(7, 7, 7, 0.95)), 
+        repeating-linear-gradient(45deg, rgba(197, 160, 89, 0.02) 0px, rgba(197, 160, 89, 0.02) 1px, transparent 1px, transparent 30px),
+        repeating-linear-gradient(-45deg, rgba(139, 0, 0, 0.02) 0px, rgba(139, 0, 0, 0.02) 1px, transparent 1px, transparent 30px),
+        radial-gradient(circle at 10% 20%, rgba(139, 0, 0, 0.1) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(197, 160, 89, 0.08) 0%, transparent 45%),
+        linear-gradient(rgba(7, 7, 7, 0.42), rgba(7, 7, 7, 0.58)),
         url('banner.png');
     background-size: cover;
-    background-position: center;
+    background-position: center center;
     background-repeat: no-repeat;
     background-attachment: fixed;
     min-height: 100vh;
