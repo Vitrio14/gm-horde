@@ -271,13 +271,11 @@
         <section id="players" class="panel">
 
             <div class="topbar">
-
                 <h1>Players</h1>
-
-                <button onclick="addPlayer()">
-                    + Nuovo Player
-                </button>
-
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="addFolder('players')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">+ Nuova Cartella</button>
+                    <button onclick="addPlayer()">+ Nuovo Player</button>
+                </div>
             </div>
 
             <div id="players-list" class="grid"></div>
@@ -330,10 +328,10 @@
 
             <div class="topbar">
                 <h1>Comandi RP</h1>
-
-                <button onclick="addCommand()">
-                    + Aggiungi
-                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="addFolder('commands')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">+ Nuova Cartella</button>
+                    <button onclick="addCommand()">+ Aggiungi</button>
+                </div>
             </div>
 
             <div id="commands-list" class="grid"></div>
@@ -344,14 +342,10 @@
 
             <div class="topbar">
                 <h1>Admin Panel</h1>
-            </div>
-
-            <div class="admin-box">
-
-                <button onclick="saveGlobalLink()">
-                    + Nuovo Link
-                </button>
-
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="addFolder('admin')" style="background: linear-gradient(135deg, #f59e0b, #d97706);">+ Nuova Cartella</button>
+                    <button onclick="saveGlobalLink()">+ Nuovo Link</button>
+                </div>
             </div>
 
             <div id="global-links" class="grid"></div>

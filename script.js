@@ -3,6 +3,9 @@ let currentQuestsFolder = null;
 let currentDocsFolder = null;
 let currentNotesFolder = null;
 let currentMediaFolder = null;
+let currentPlayersFolder = null;
+let currentCommandsFolder = null;
+let currentAdminFolder = null;
 
 function login() {
 
@@ -792,61 +795,46 @@ setInterval(function() {
 /* COMMANDS */
 
 function addCommand() {
+    if (!currentCommandsFolder) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attenzione',
+            text: 'Seleziona o crea prima una cartella per poter aggiungere un comando!',
+            background: '#131a25'
+        });
+        return;
+    }
 
     Swal.fire({
-
         title: 'Nuovo Comando',
-
         html: `
-
             <input
                 id="command-name"
                 class="swal2-input"
                 placeholder="/comando"
             >
-
             <textarea
                 id="command-description"
                 class="swal2-textarea"
                 placeholder="Descrizione comando"
             ></textarea>
-
         `,
-
         confirmButtonText: 'Salva',
-
         background: '#131a25',
-
         preConfirm: () => {
-
             return {
-
-                command:
-                    document.getElementById(
-                        'command-name'
-                    ).value,
-
-                description:
-                    document.getElementById(
-                        'command-description'
-                    ).value
+                command: document.getElementById('command-name').value,
+                description: document.getElementById('command-description').value
             };
         }
-
     }).then((result) => {
-
         if (result.isConfirmed) {
-
             db.collection('commands').add({
-
                 command: result.value.command,
-                description: result.value.description
-
+                description: result.value.description,
+                folderId: currentCommandsFolder.id
             }).then(() => {
-
-                showToast(
-                    'Comando aggiunto'
-                );
+                showToast('Comando aggiunto');
             });
         }
     });
@@ -855,24 +843,53 @@ function addCommand() {
 function loadCommands() {
     const container = document.getElementById('commands-list');
 
-    db.collection('commands').onSnapshot(snapshot => {
-        container.innerHTML = '';
-        snapshot.forEach(doc => {
-            const c = doc.data();
-            container.innerHTML += `
-                <div class="card">
-                    <h3>${c.command}</h3>
-                    <p>${c.description}</p>
-                    <div class="action-buttons">
-                        <button
-                            class="delete-btn"
-                            onclick="confirmDelete('commands', '${doc.id}', loadCommands)"
-                        >
-                            Elimina
-                        </button>
+    db.collection('folders').where('type', '==', 'commands').onSnapshot(foldersSnapshot => {
+        db.collection('commands').onSnapshot(commandsSnapshot => {
+            container.innerHTML = '';
+
+            if (currentCommandsFolder) {
+                container.innerHTML += `
+                    <div class="card folder-card back-card" onclick="currentCommandsFolder = null; loadCommands();" style="border-color: #ef4444; cursor: pointer;">
+                        <h3><i class="fa-solid fa-arrow-left"></i> Torna alle Cartelle</h3>
+                        <p style="margin-top: 8px;">Cartella attiva: <b>${currentCommandsFolder.name}</b></p>
                     </div>
-                </div>
-            `;
+                `;
+
+                commandsSnapshot.forEach(doc => {
+                    const c = doc.data();
+                    if (c.folderId === currentCommandsFolder.id) {
+                        container.innerHTML += `
+                            <div class="card">
+                                <h3>${c.command}</h3>
+                                <p>${c.description}</p>
+                                <div class="action-buttons">
+                                    <button
+                                        class="delete-btn"
+                                        onclick="confirmDelete('commands', '${doc.id}', loadCommands)"
+                                    >
+                                        Elimina
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                foldersSnapshot.forEach(fDoc => {
+                    const f = fDoc.data();
+                    container.innerHTML += `
+                        <div class="card folder-card" style="border-color: #f59e0b; cursor: pointer;" onclick="currentCommandsFolder = {id: '${fDoc.id}', name: '${f.name}'}; loadCommands();">
+                            <h3><i class="fa-solid fa-folder" style="color: #f59e0b; margin-right: 8px;"></i> ${f.name}</h3>
+                            <p>Apri per visualizzare i comandi</p>
+                            <div class="action-buttons" onclick="event.stopPropagation();" style="margin-top: 15px;">
+                                <button class="delete-btn" style="padding: 6px; font-size: 13px;" onclick="confirmDelete('folders', '${fDoc.id}', loadCommands)">
+                                    Elimina Cartella
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
         });
     });
 }
@@ -880,61 +897,46 @@ function loadCommands() {
 /* ADMIN LINKS */
 
 function saveGlobalLink() {
+    if (!currentAdminFolder) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attenzione',
+            text: 'Seleziona o crea prima una cartella per poter aggiungere un link!',
+            background: '#131a25'
+        });
+        return;
+    }
 
     Swal.fire({
-
         title: 'Nuovo Link',
-
         html: `
-
             <input
                 id="link-title"
                 class="swal2-input"
                 placeholder="Titolo"
             >
-
             <input
                 id="link-url"
                 class="swal2-input"
                 placeholder="https://..."
             >
-
         `,
-
         confirmButtonText: 'Salva',
-
         background: '#131a25',
-
         preConfirm: () => {
-
             return {
-
-                title:
-                    document.getElementById(
-                        'link-title'
-                    ).value,
-
-                link:
-                    document.getElementById(
-                        'link-url'
-                    ).value
+                title: document.getElementById('link-title').value,
+                link: document.getElementById('link-url').value
             };
         }
-
     }).then((result) => {
-
         if (result.isConfirmed) {
-
             db.collection('globalLinks').add({
-
                 title: result.value.title,
-                link: result.value.link
-
+                link: result.value.link,
+                folderId: currentAdminFolder.id
             }).then(() => {
-
-                showToast(
-                    'Link salvato'
-                );
+                showToast('Link salvato');
             });
         }
     });
@@ -943,30 +945,59 @@ function saveGlobalLink() {
 function loadGlobalLinks() {
     const container = document.getElementById('global-links');
 
-    db.collection('globalLinks').onSnapshot(snapshot => {
-        container.innerHTML = '';
-        snapshot.forEach(doc => {
-            const l = doc.data();
-            container.innerHTML += `
-                <div class="card">
-                    <h3>${l.title}</h3>
-                    <a
-                        href="${l.link}"
-                        target="_blank"
-                        class="link-btn"
-                    >
-                        APRI LINK
-                    </a>
-                    <div class="action-buttons">
-                        <button
-                            class="delete-btn"
-                            onclick="confirmDelete('globalLinks', '${doc.id}', loadGlobalLinks)"
-                        >
-                            Elimina
-                        </button>
+    db.collection('folders').where('type', '==', 'admin').onSnapshot(foldersSnapshot => {
+        db.collection('globalLinks').onSnapshot(linksSnapshot => {
+            container.innerHTML = '';
+
+            if (currentAdminFolder) {
+                container.innerHTML += `
+                    <div class="card folder-card back-card" onclick="currentAdminFolder = null; loadGlobalLinks();" style="border-color: #ef4444; cursor: pointer;">
+                        <h3><i class="fa-solid fa-arrow-left"></i> Torna alle Cartelle</h3>
+                        <p style="margin-top: 8px;">Cartella attiva: <b>${currentAdminFolder.name}</b></p>
                     </div>
-                </div>
-            `;
+                `;
+
+                linksSnapshot.forEach(doc => {
+                    const l = doc.data();
+                    if (l.folderId === currentAdminFolder.id) {
+                        container.innerHTML += `
+                            <div class="card">
+                                <h3>${l.title}</h3>
+                                <a
+                                    href="${l.link}"
+                                    target="_blank"
+                                    class="link-btn"
+                                >
+                                    APRI LINK
+                                </a>
+                                <div class="action-buttons">
+                                    <button
+                                        class="delete-btn"
+                                        onclick="confirmDelete('globalLinks', '${doc.id}', loadGlobalLinks)"
+                                    >
+                                        Elimina
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                foldersSnapshot.forEach(fDoc => {
+                    const f = fDoc.data();
+                    container.innerHTML += `
+                        <div class="card folder-card" style="border-color: #f59e0b; cursor: pointer;" onclick="currentAdminFolder = {id: '${fDoc.id}', name: '${f.name}'}; loadGlobalLinks();">
+                            <h3><i class="fa-solid fa-folder" style="color: #f59e0b; margin-right: 8px;"></i> ${f.name}</h3>
+                            <p>Apri per visualizzare i link</p>
+                            <div class="action-buttons" onclick="event.stopPropagation();" style="margin-top: 15px;">
+                                <button class="delete-btn" style="padding: 6px; font-size: 13px;" onclick="confirmDelete('folders', '${fDoc.id}', loadGlobalLinks)">
+                                    Elimina Cartella
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
         });
     });
 }
@@ -1130,59 +1161,46 @@ function showToast(text) {
 /* PLAYERS */
 
 function addPlayer() {
+    if (!currentPlayersFolder) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Attenzione',
+            text: 'Seleziona o crea prima una cartella per poter aggiungere un player!',
+            background: '#131a25'
+        });
+        return;
+    }
 
     Swal.fire({
-
         title: 'Nuovo Player',
-
         html: `
-
             <input
                 id="player-name"
                 class="swal2-input"
                 placeholder="Nome Player"
             >
-
             <textarea
                 id="player-notes"
                 class="swal2-textarea"
                 placeholder="Note Player"
             ></textarea>
-
         `,
-
         confirmButtonText: 'Crea Player',
-
         background: '#131a25',
-
         preConfirm: () => {
-
             return {
-
-                name:
-                    document.getElementById(
-                        'player-name'
-                    ).value,
-
-                notes:
-                    document.getElementById(
-                        'player-notes'
-                    ).value
+                name: document.getElementById('player-name').value,
+                notes: document.getElementById('player-notes').value
             };
         }
-
     }).then((result) => {
-
         if (result.isConfirmed) {
-
             db.collection('players').add({
-
                 name: result.value.name,
                 notes: result.value.notes,
-                quests: []
-
+                quests: [],
+                folderId: currentPlayersFolder.id
             }).then(() => {
-
                 showToast('Player creato');
             });
         }
@@ -1192,42 +1210,69 @@ function addPlayer() {
 function loadPlayers() {
     const container = document.getElementById('players-list');
 
-    db.collection('players').onSnapshot(snapshot => {
-        container.innerHTML = '';
-        snapshot.forEach(doc => {
-            const p = doc.data();
+    db.collection('folders').where('type', '==', 'players').onSnapshot(foldersSnapshot => {
+        db.collection('players').onSnapshot(playersSnapshot => {
+            container.innerHTML = '';
 
-            // Mostra in modo chiaro le quest attive assegnate al player
-            let activeQuestsHTML = '';
-            if (p.quests && p.quests.length > 0) {
-                activeQuestsHTML = p.quests.map(q => `<span class="status progress" style="margin: 2px;">${q}</span>`).join(' ');
+            if (currentPlayersFolder) {
+                container.innerHTML += `
+                    <div class="card folder-card back-card" onclick="currentPlayersFolder = null; loadPlayers();" style="border-color: #ef4444; cursor: pointer;">
+                        <h3><i class="fa-solid fa-arrow-left"></i> Torna alle Cartelle</h3>
+                        <p style="margin-top: 8px;">Cartella attiva: <b>${currentPlayersFolder.name}</b></p>
+                    </div>
+                `;
+
+                playersSnapshot.forEach(doc => {
+                    const p = doc.data();
+                    if (p.folderId === currentPlayersFolder.id) {
+                        let activeQuestsHTML = '';
+                        if (p.quests && p.quests.length > 0) {
+                            activeQuestsHTML = p.quests.map(q => `<span class="status progress" style="margin: 2px;">${q}</span>`).join(' ');
+                        } else {
+                            activeQuestsHTML = '<span style="color: var(--muted); font-size:13px;">Nessuna quest attiva</span>';
+                        }
+
+                        container.innerHTML += `
+                            <div class="card">
+                                <h3>${p.name}</h3>
+                                <p>${p.notes || 'Nessuna nota'}</p>
+                                <div style="margin-top:10px;">
+                                    <b>Quest Attive:</b><br>${activeQuestsHTML}
+                                </div>
+                                <div class="action-buttons">
+                                    <button
+                                        class="edit-btn"
+                                        onclick="openPlayerModal('${doc.id}')"
+                                    >
+                                        Apri
+                                    </button>
+                                    <button
+                                        class="delete-btn"
+                                        onclick="confirmDelete('players', '${doc.id}', loadPlayers)"
+                                    >
+                                        Elimina
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
             } else {
-                activeQuestsHTML = '<span style="color: var(--muted); font-size:13px;">Nessuna quest attiva</span>';
+                foldersSnapshot.forEach(fDoc => {
+                    const f = fDoc.data();
+                    container.innerHTML += `
+                        <div class="card folder-card" style="border-color: #f59e0b; cursor: pointer;" onclick="currentPlayersFolder = {id: '${fDoc.id}', name: '${f.name}'}; loadPlayers();">
+                            <h3><i class="fa-solid fa-folder" style="color: #f59e0b; margin-right: 8px;"></i> ${f.name}</h3>
+                            <p>Apri per visualizzare i player</p>
+                            <div class="action-buttons" onclick="event.stopPropagation();" style="margin-top: 15px;">
+                                <button class="delete-btn" style="padding: 6px; font-size: 13px;" onclick="confirmDelete('folders', '${fDoc.id}', loadPlayers)">
+                                    Elimina Cartella
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
             }
-
-            container.innerHTML += `
-                <div class="card">
-                    <h3>${p.name}</h3>
-                    <p>${p.notes || 'Nessuna nota'}</p>
-                    <div style="margin-top:10px;">
-                        <b>Quest Attive:</b><br>${activeQuestsHTML}
-                    </div>
-                    <div class="action-buttons">
-                        <button
-                            class="edit-btn"
-                            onclick="openPlayerModal('${doc.id}')"
-                        >
-                            Apri
-                        </button>
-                        <button
-                            class="delete-btn"
-                            onclick="confirmDelete('players', '${doc.id}', loadPlayers)"
-                        >
-                            Elimina
-                        </button>
-                    </div>
-                </div>
-            `;
         });
     });
 }
